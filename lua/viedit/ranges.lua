@@ -37,7 +37,6 @@ end
 function M.get_visual_selection_range()
   local mode = vim.fn.mode()
   if mode ~= 'v' and mode ~= 'V' and mode ~= '\22' then
-    print('Not in visual mode')
     return nil
   end
 
@@ -52,6 +51,12 @@ function M.get_visual_selection_range()
   if start_row > end_row or (start_row == end_row and start_col > end_col) then
     start_row, end_row = end_row, start_row
     start_col, end_col = end_col, start_col
+  end
+
+  if mode == 'V' then
+    start_col = 0
+    local lines = vim.api.nvim_buf_get_lines(0, end_row - 1, end_row, false)
+    end_col = lines[1] and #lines[1] or 0
   end
 
   return {
