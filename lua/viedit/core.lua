@@ -18,7 +18,7 @@ function M.start_session(buffer_id)
   vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' }, {
     group = group_id,
     buffer = buffer_id,
-    callback = function()
+    callback = util.debounce(function()
       if vim.fn.undotree(buffer_id).seq_cur ~= vim.fn.undotree(buffer_id).seq_last then
         return
       end
@@ -26,14 +26,14 @@ function M.start_session(buffer_id)
       vim.cmd('silent! undojoin')
 
       util.sync_extmarks(buffer_id, session)
-    end,
+    end, 250),
   })
   vim.api.nvim_create_autocmd({ 'CursorMoved', 'CursorMovedI' }, {
     group = group_id,
     buffer = buffer_id,
-    callback = function()
+    callback = util.debounce(function()
       util.highlight_current_extrmark(buffer_id, session)
-    end,
+    end, 250),
   })
   return session
 end
